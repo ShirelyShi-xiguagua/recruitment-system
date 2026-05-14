@@ -1,28 +1,7 @@
 import json
-import os
 import streamlit as st
-from anthropic import Anthropic
+from api_client import call_api, parse_json_response
 from typing import Dict, List, Any
-
-MODEL = "claude-sonnet-4-20250514"
-
-
-def _get_client():
-    api_key = st.secrets.get("ANTHROPIC_API_KEY", os.getenv("ANTHROPIC_API_KEY", ""))
-    return Anthropic(api_key=api_key)
-
-
-def _parse_json_response(text: str) -> dict:
-    text = text.strip()
-    if text.startswith("```"):
-        lines = text.split("\n")
-        lines = lines[1:]
-        for i in range(len(lines) - 1, -1, -1):
-            if lines[i].strip() == "```":
-                lines = lines[:i]
-                break
-        text = "\n".join(lines)
-    return json.loads(text)
 
 
 def _build_project_context(resume_profile: Dict) -> str:
@@ -191,12 +170,8 @@ def generate_interview_questions(
 每道题的red_flag字段必须填写，帮助面试官识别"包装型"回答。"""
 
     try:
-        response = _get_client().messages.create(
-            model=MODEL,
-            max_tokens=6000,
-            messages=[{"role": "user", "content": prompt}]
-        )
-        result = _parse_json_response(response.content[0].text)
+        result_text = call_api(prompt, max_tokens=6000)
+        result = parse_json_response(result_text)
         if isinstance(result, list):
             return result
         if isinstance(result, dict):

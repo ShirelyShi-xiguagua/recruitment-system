@@ -1,32 +1,12 @@
 import re
 import json
-import os
 import streamlit as st
-from anthropic import Anthropic
+from api_client import call_api, parse_json_response, truncate_text
 from typing import Dict, List, Any
-
-MODEL = "claude-sonnet-4-20250514"
-
-
-def _get_client():
-    api_key = st.secrets.get("ANTHROPIC_API_KEY", os.getenv("ANTHROPIC_API_KEY", ""))
-    return Anthropic(api_key=api_key)
-
-
-def _parse_json_response(text: str) -> dict:
-    text = text.strip()
-    if text.startswith("```"):
-        lines = text.split("\n")
-        lines = lines[1:]  # remove ```json
-        for i in range(len(lines) - 1, -1, -1):
-            if lines[i].strip() == "```":
-                lines = lines[:i]
-                break
-        text = "\n".join(lines)
-    return json.loads(text)
 
 
 def extract_talent_profile(jd_text: str) -> Dict[str, Any]:
+    jd_text = truncate_text(jd_text)
     prompt = f"""请从以下职位描述中提取详细的人才画像。
 
 职位描述：
@@ -53,12 +33,8 @@ def extract_talent_profile(jd_text: str) -> Dict[str, Any]:
 }}"""
 
     try:
-        response = _get_client().messages.create(
-            model=MODEL,
-            max_tokens=2000,
-            messages=[{"role": "user", "content": prompt}]
-        )
-        return _parse_json_response(response.content[0].text)
+        result_text = call_api(prompt, max_tokens=2000)
+        return parse_json_response(result_text)
     except json.JSONDecodeError:
         return _extract_fallback_profile(jd_text)
     except Exception as e:
@@ -80,15 +56,13 @@ def _extract_fallback_profile(jd_text: str) -> Dict[str, Any]:
         "industry_knowledge": [],
         "tools_technologies": _extract_list_field(jd_text, r"工具|Tools|技术栈"),
         "language_requirements": [],
-        "salary_range": "",
-        "job_type": "",
-        "location": ""
+        "salary_range": "", "job_type": "", "location": ""
     }
 
 
 def _extract_field(text: str, pattern: str, max_length: int = 50) -> str:
-    match = re.search(f"(?:{pattern})[:\\s：]*([^\\n]{{1,{max_length}}})", text, re.IGNORECASE)
-    return match.group(1).strip() if match else ""
+    m = re.search(f"(?:{pattern})[:\\s：]*([^\\n]{{1,{max_length}}})", text, re.IGNORECASE)
+    return m.group(1).strip() if m else ""
 
 
 def _extract_years(text: str) -> int:
@@ -101,8 +75,7 @@ def _extract_years(text: str) -> int:
 
 def _extract_list_field(text: str, pattern: str) -> List[str]:
     lines = text.split("\n")
-    result = []
-    capture = False
+    result, capture = [], False
     for line in lines:
         if re.search(pattern, line, re.IGNORECASE):
             capture = True
