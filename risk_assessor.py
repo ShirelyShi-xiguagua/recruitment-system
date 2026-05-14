@@ -1,9 +1,12 @@
 import json
 import os
+import streamlit as st
 from anthropic import Anthropic
 from typing import Dict, List, Any, Tuple
 
-client = Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY", "your-api-key-here"))
+def _get_client():
+    api_key = st.secrets.get("ANTHROPIC_API_KEY", os.getenv("ANTHROPIC_API_KEY", ""))
+    return Anthropic(api_key=api_key)
 
 def assess_match_and_risks(talent_profile: Dict[str, Any], resume_profile: Dict[str, Any]) -> Dict[str, Any]:
     """
@@ -64,7 +67,7 @@ def assess_match_and_risks(talent_profile: Dict[str, Any], resume_profile: Dict[
     """
 
     try:
-        response = client.messages.create(
+        response = _get_client().messages.create(
             model="claude-3-sonnet-20240229",
             max_tokens=2000,
             messages=[
