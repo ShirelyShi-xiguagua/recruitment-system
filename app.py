@@ -24,26 +24,218 @@ if "page" not in st.session_state:
 
 st.markdown("""
 <style>
-section[data-testid="stSidebar"] { background: linear-gradient(180deg, #e0f2ff 0%, #b3d9ff 40%, #8cc5ff 100%); }
-section[data-testid="stSidebar"] .stMarkdown h1, section[data-testid="stSidebar"] .stMarkdown h2, section[data-testid="stSidebar"] .stMarkdown h3 { color: #1a3a5c; }
-section[data-testid="stSidebar"] .stMarkdown p, section[data-testid="stSidebar"] .stMarkdown li { color: #2c5282; }
-.main .block-container { padding-top: 1.5rem; max-width: 1100px; }
-div[data-testid="stMetric"] { background: linear-gradient(135deg, #f0f7ff 0%, #e0efff 100%); border: 1px solid #c4daf0; border-radius: 12px; padding: 1rem; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
-div[data-testid="stMetric"] label { color: #1a3a5c !important; font-weight: 600 !important; }
-div[data-testid="stMetric"] div[data-testid="stMetricValue"] { color: #0d47a1 !important; }
-.stButton > button[kind="primary"] { background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%); border: none; border-radius: 8px; font-weight: 600; box-shadow: 0 3px 10px rgba(33,150,243,0.3); }
-h1 { color: #1a3a5c; font-weight: 700; }
-h2 { color: #1e4976; border-bottom: 2px solid #e0efff; padding-bottom: 0.5rem; }
-hr { border-color: #d0e4f5; }
-.step-num { display: inline-block; width: 28px; height: 28px; border-radius: 50%; text-align: center; line-height: 28px; font-weight: 700; font-size: 0.9rem; margin-right: 0.5rem; }
-.num-active { background: #2196F3; color: white; } .num-done { background: #4CAF50; color: white; } .num-waiting { background: #ccc; color: white; }
-.question-card { background: linear-gradient(135deg, #f8fbff 0%, #f0f6ff 100%); border-left: 4px solid #2196F3; border-radius: 0 8px 8px 0; padding: 1rem 1.2rem; margin-bottom: 0.8rem; box-shadow: 0 1px 4px rgba(0,0,0,0.04); }
-.question-card .q-category { color: #1976D2; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.5px; margin-bottom: 0.3rem; }
-.question-card .q-text { color: #1a3a5c; font-size: 1rem; font-weight: 500; margin-bottom: 0.4rem; }
-.question-card .q-purpose { color: #5a7a9a; font-size: 0.85rem; font-style: italic; }
-.question-card .q-followup { color: #7a9aba; font-size: 0.8rem; margin-top: 0.3rem; }
-div[data-testid="stFileUploader"] { background: #f8fbff; border-radius: 8px; border: 2px dashed #b3d9ff; padding: 0.5rem; }
-.profile-card { background: white; border-radius: 10px; padding: 1rem 1.2rem; border: 1px solid #d0e4f5; box-shadow: 0 2px 6px rgba(0,0,0,0.05); margin-bottom: 0.8rem; }
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+/* 全局背景 — 浅紫蓝渐变 */
+.stApp {
+    background: linear-gradient(135deg, #f5f0ff 0%, #e8e0ff 15%, #dce8ff 40%, #e0f4ff 70%, #f0f0ff 100%);
+}
+html, body, [class*="css"] { font-family: 'Inter', -apple-system, sans-serif; }
+
+/* 侧边栏 — 深紫毛玻璃 */
+section[data-testid="stSidebar"] {
+    background: linear-gradient(180deg, #2d1b69 0%, #1e1145 50%, #150d35 100%) !important;
+}
+section[data-testid="stSidebar"] * { color: #e0d4ff !important; }
+section[data-testid="stSidebar"] .stMarkdown h1,
+section[data-testid="stSidebar"] .stMarkdown h2,
+section[data-testid="stSidebar"] .stMarkdown h3 { color: #ffffff !important; }
+section[data-testid="stSidebar"] hr { border-color: rgba(255,255,255,0.1) !important; }
+
+/* 主内容区 */
+.main .block-container { padding-top: 2rem; max-width: 1150px; }
+
+/* 毛玻璃卡片基础 */
+.glass-card {
+    background: rgba(255,255,255,0.65);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.5);
+    border-radius: 20px;
+    padding: 1.5rem;
+    box-shadow: 0 8px 32px rgba(80,60,180,0.08), 0 2px 8px rgba(0,0,0,0.04);
+    margin-bottom: 1rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.glass-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(80,60,180,0.12), 0 4px 12px rgba(0,0,0,0.06);
+}
+
+/* Metric 卡片 */
+div[data-testid="stMetric"] {
+    background: rgba(255,255,255,0.7);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255,255,255,0.6);
+    border-radius: 16px;
+    padding: 1.2rem;
+    box-shadow: 0 4px 20px rgba(100,80,200,0.08);
+}
+div[data-testid="stMetric"] label { color: #6b5ce7 !important; font-weight: 600 !important; font-size: 0.85rem !important; }
+div[data-testid="stMetric"] div[data-testid="stMetricValue"] { color: #2d1b69 !important; font-weight: 800 !important; }
+
+/* 按钮 — 紫蓝渐变 */
+.stButton > button[kind="primary"] {
+    background: linear-gradient(135deg, #7c5ce7 0%, #6366f1 50%, #4f8cff 100%) !important;
+    border: none !important;
+    border-radius: 12px !important;
+    padding: 0.65rem 1.8rem !important;
+    font-weight: 600 !important;
+    color: white !important;
+    box-shadow: 0 4px 15px rgba(99,102,241,0.35);
+    transition: all 0.3s;
+}
+.stButton > button[kind="primary"]:hover {
+    box-shadow: 0 6px 25px rgba(99,102,241,0.5);
+    transform: translateY(-2px);
+}
+.stButton > button[kind="secondary"] {
+    background: rgba(255,255,255,0.6) !important;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(99,102,241,0.2) !important;
+    border-radius: 12px !important;
+    color: #4f46e5 !important;
+    font-weight: 500 !important;
+}
+
+/* 标题 */
+h1 { color: #2d1b69 !important; font-weight: 800 !important; letter-spacing: -0.5px; }
+h2 { color: #3b2d7a !important; font-weight: 700 !important; border-bottom: 2px solid rgba(99,102,241,0.15); padding-bottom: 0.5rem; }
+h3, h4, h5 { color: #4a3d8f !important; font-weight: 600 !important; }
+
+/* 分割线 */
+hr { border-color: rgba(99,102,241,0.1) !important; }
+
+/* 步骤指示器 */
+.step-num {
+    display: inline-block; width: 30px; height: 30px; border-radius: 50%;
+    text-align: center; line-height: 30px; font-weight: 700; font-size: 0.85rem;
+    margin-right: 0.6rem;
+}
+.num-active { background: linear-gradient(135deg, #7c5ce7, #6366f1); color: white; box-shadow: 0 2px 10px rgba(99,102,241,0.4); }
+.num-done { background: linear-gradient(135deg, #10b981, #34d399); color: white; }
+.num-waiting { background: rgba(255,255,255,0.15); color: rgba(255,255,255,0.4); }
+
+/* 面试题卡片 */
+.question-card {
+    background: rgba(255,255,255,0.6);
+    backdrop-filter: blur(12px);
+    border-left: 4px solid;
+    border-image: linear-gradient(180deg, #7c5ce7, #4f8cff) 1;
+    border-radius: 0 16px 16px 0;
+    padding: 1.2rem 1.5rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 4px 16px rgba(80,60,180,0.06);
+    transition: transform 0.2s;
+}
+.question-card:hover { transform: translateX(4px); }
+.question-card .q-category {
+    color: #7c5ce7; font-size: 0.75rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.4rem;
+}
+.question-card .q-text { color: #2d1b69; font-size: 1rem; font-weight: 600; margin-bottom: 0.5rem; line-height: 1.5; }
+.question-card .q-purpose { color: #6b7db3; font-size: 0.85rem; }
+.question-card .q-followup { color: #8b9dc3; font-size: 0.8rem; margin-top: 0.4rem; }
+
+/* 文件上传区域 */
+div[data-testid="stFileUploader"] {
+    background: rgba(255,255,255,0.5);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    border: 2px dashed rgba(99,102,241,0.25);
+    padding: 0.8rem;
+}
+div[data-testid="stFileUploader"]:hover { border-color: rgba(99,102,241,0.5); }
+
+/* 画像管理卡片 */
+.profile-card {
+    background: rgba(255,255,255,0.65);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255,255,255,0.5);
+    border-radius: 16px;
+    padding: 1.2rem 1.5rem;
+    box-shadow: 0 4px 20px rgba(80,60,180,0.06);
+    margin-bottom: 1rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.profile-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(80,60,180,0.1);
+}
+
+/* Expander */
+div[data-testid="stExpander"] {
+    background: rgba(255,255,255,0.5);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.4);
+    border-radius: 16px;
+    box-shadow: 0 2px 12px rgba(80,60,180,0.05);
+}
+
+/* JSON展示 */
+div[data-testid="stJson"] {
+    background: rgba(255,255,255,0.4);
+    border-radius: 12px;
+    border: 1px solid rgba(99,102,241,0.1);
+}
+
+/* Tabs */
+.stTabs [data-baseweb="tab-list"] { gap: 4px; }
+.stTabs [data-baseweb="tab"] {
+    background: rgba(255,255,255,0.4);
+    border-radius: 12px 12px 0 0;
+    backdrop-filter: blur(8px);
+}
+.stTabs [data-baseweb="tab"][aria-selected="true"] {
+    background: rgba(99,102,241,0.1);
+}
+
+/* Alert 提示 */
+div[data-testid="stAlert"] { border-radius: 12px; }
+
+/* 输入框 */
+input, textarea, select {
+    border-radius: 10px !important;
+    border-color: rgba(99,102,241,0.2) !important;
+}
+input:focus, textarea:focus { border-color: #7c5ce7 !important; box-shadow: 0 0 0 2px rgba(124,92,231,0.15) !important; }
+
+/* 匹配度条形图 */
+.match-bar-card {
+    background: rgba(255,255,255,0.6);
+    backdrop-filter: blur(12px);
+    border-radius: 14px;
+    padding: 1rem 1.2rem;
+    margin-bottom: 0.8rem;
+    border: 1px solid rgba(255,255,255,0.5);
+    box-shadow: 0 2px 12px rgba(80,60,180,0.05);
+}
+
+/* 风险卡片 */
+.risk-card {
+    background: rgba(255,255,255,0.6);
+    backdrop-filter: blur(12px);
+    border-radius: 14px;
+    padding: 1rem 1.2rem;
+    margin-bottom: 0.8rem;
+    border: 1px solid rgba(255,255,255,0.5);
+    box-shadow: 0 2px 12px rgba(80,60,180,0.05);
+}
+
+/* 欢迎页 Hero */
+.hero-section {
+    text-align: center;
+    padding: 4rem 2rem;
+}
+.hero-section h2 {
+    font-size: 2rem;
+    background: linear-gradient(135deg, #7c5ce7 0%, #6366f1 50%, #4f8cff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    border: none !important;
+    font-weight: 800 !important;
+}
+.hero-section p { color: #6b7db3; font-size: 1.1rem; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -161,7 +353,7 @@ with st.sidebar:
         st.markdown(f"### 已保存 {len(saved)} 个画像")
 
     st.markdown("---")
-    st.markdown('<div style="text-align:center; color:#5a7a9a; font-size:0.8rem;">Powered by Claude AI<br>v4.0</div>', unsafe_allow_html=True)
+    st.markdown('<div style="text-align:center; color:rgba(255,255,255,0.4); font-size:0.75rem;">Powered by Claude AI<br>v4.1</div>', unsafe_allow_html=True)
 
 
 # ======================================================================
@@ -244,9 +436,13 @@ if st.session_state.page == "evaluate":
         st.markdown("## :three: 上传简历并评估")
         tp = st.session_state.talent_profile
         st.markdown(f"""
-        <div style="background:linear-gradient(135deg,#f0f7ff,#e0efff); border-radius:10px; padding:1rem 1.2rem; margin-bottom:1rem; border:1px solid #c4daf0;">
-            <div style="font-weight:700; color:#1a3a5c; margin-bottom:0.5rem;">当前岗位: {tp.get('job_title', '未知')}</div>
-            <div style="color:#5a7a9a; font-size:0.9rem;">核心技能: {', '.join(tp.get('required_skills', [])[:6])} | 经验要求: {tp.get('experience_years', 0)}年 | 学历: {tp.get('education', '不限')}</div>
+        <div class="glass-card" style="border-left:4px solid #7c5ce7;">
+            <div style="font-weight:700; color:#2d1b69; font-size:1.1rem; margin-bottom:0.5rem;">📋 当前岗位: {tp.get('job_title', '未知')}</div>
+            <div style="color:#6b7db3; font-size:0.9rem;">
+                核心技能: {', '.join(tp.get('required_skills', [])[:6])} |
+                经验要求: {tp.get('experience_years', 0)}年 |
+                学历: {tp.get('education', '不限')}
+            </div>
         </div>
         """, unsafe_allow_html=True)
 
@@ -305,16 +501,16 @@ if st.session_state.page == "evaluate":
             cp = resume_profile
             info1, info2 = st.columns(2)
             with info1:
-                st.markdown(f"""<div style="background:white; border-radius:10px; padding:1rem; border:1px solid #e0efff; margin-bottom:1rem;">
-                    <div style="font-size:1.3rem; font-weight:700; color:#1a3a5c;">{cp.get('name', '未知')}</div>
-                    <div style="color:#5a7a9a; margin-top:0.3rem;">{cp.get('current_job', '')} @ {cp.get('current_company', '')}</div>
-                    <div style="color:#5a7a9a; margin-top:0.2rem;">工作经验: {cp.get('total_experience_years', 0)} 年</div></div>""", unsafe_allow_html=True)
+                st.markdown(f"""<div class="glass-card">
+                    <div style="font-size:1.3rem; font-weight:800; color:#2d1b69;">{cp.get('name', '未知')}</div>
+                    <div style="color:#6b7db3; margin-top:0.3rem;">{cp.get('current_job', '')} @ {cp.get('current_company', '')}</div>
+                    <div style="color:#6b7db3; margin-top:0.2rem;">工作经验: {cp.get('total_experience_years', 0)} 年</div></div>""", unsafe_allow_html=True)
             with info2:
                 c = cp.get("contact_info", {})
-                st.markdown(f"""<div style="background:white; border-radius:10px; padding:1rem; border:1px solid #e0efff; margin-bottom:1rem;">
-                    <div style="color:#5a7a9a;">📧 {c.get('email', '未提供')}</div>
-                    <div style="color:#5a7a9a;">📱 {c.get('phone', '未提供')}</div>
-                    <div style="color:#5a7a9a;">📍 {c.get('location', '未提供')}</div></div>""", unsafe_allow_html=True)
+                st.markdown(f"""<div class="glass-card">
+                    <div style="color:#6b7db3;">📧 {c.get('email', '未提供')}</div>
+                    <div style="color:#6b7db3;">📱 {c.get('phone', '未提供')}</div>
+                    <div style="color:#6b7db3;">📍 {c.get('location', '未提供')}</div></div>""", unsafe_allow_html=True)
             skills = cp.get("skills", {})
             if skills.get("technical_skills"):
                 st.markdown("**技术技能:** " + " ".join([f"`{s}`" for s in skills["technical_skills"]]))
@@ -334,11 +530,13 @@ if st.session_state.page == "evaluate":
         with tab2:
             for item in assessment.get('match_details', []):
                 score = item['score']
-                color = "#4CAF50" if score >= 80 else "#FF9800" if score >= 60 else "#F44336"
-                st.markdown(f"""<div style="background:white; border-radius:8px; padding:0.8rem 1rem; margin-bottom:0.6rem; border-left:4px solid {color}; box-shadow:0 1px 3px rgba(0,0,0,0.05);">
-                    <div style="display:flex; justify-content:space-between;"><span style="font-weight:600; color:#1a3a5c;">{item['dimension']}</span><span style="font-weight:700; color:{color}; font-size:1.2rem;">{score}%</span></div>
-                    <div style="background:#eee; border-radius:4px; height:6px; margin-top:0.4rem;"><div style="background:{color}; border-radius:4px; height:6px; width:{max(score,5)}%;"></div></div>
-                    <div style="color:#5a7a9a; font-size:0.9rem; margin-top:0.3rem;">{item['comment']}</div></div>""", unsafe_allow_html=True)
+                color = "#10b981" if score >= 80 else "#f59e0b" if score >= 60 else "#ef4444"
+                bar_bg = "linear-gradient(90deg, #7c5ce7, #4f8cff)" if score >= 80 else f"linear-gradient(90deg, {color}, {color})"
+                st.markdown(f"""<div class="match-bar-card" style="border-left:4px solid {color};">
+                    <div style="display:flex; justify-content:space-between;"><span style="font-weight:600; color:#2d1b69;">{item['dimension']}</span><span style="font-weight:800; color:{color}; font-size:1.2rem;">{score}%</span></div>
+                    <div style="background:rgba(99,102,241,0.08); border-radius:6px; height:8px; margin-top:0.5rem; overflow:hidden;">
+                        <div style="background:{bar_bg}; border-radius:6px; height:8px; width:{max(score,5)}%; transition:width 0.5s;"></div></div>
+                    <div style="color:#6b7db3; font-size:0.9rem; margin-top:0.4rem;">{item['comment']}</div></div>""", unsafe_allow_html=True)
             if assessment.get('strengths'):
                 st.markdown("#### :white_check_mark: 优势亮点")
                 for s in assessment['strengths']: st.success(s)
@@ -346,10 +544,10 @@ if st.session_state.page == "evaluate":
         with tab3:
             for risk in assessment.get('risks', []):
                 sev = risk.get('severity', '中')
-                sc = {"高": "#F44336", "中": "#FF9800", "低": "#FFC107"}.get(sev, "#FF9800")
-                st.markdown(f"""<div style="background:white; border-radius:8px; padding:1rem; margin-bottom:0.8rem; border-left:4px solid {sc}; box-shadow:0 1px 3px rgba(0,0,0,0.05);">
-                    <div style="display:flex; justify-content:space-between; margin-bottom:0.3rem;"><span style="font-weight:600; color:#1a3a5c;">{risk['category']}</span><span style="background:{sc}; color:white; padding:2px 10px; border-radius:12px; font-size:0.8rem;">严重程度: {sev}</span></div>
-                    <div style="color:#5a7a9a;">{risk['description']}</div></div>""", unsafe_allow_html=True)
+                sc = {"高": "#ef4444", "中": "#f59e0b", "低": "#f59e0b"}.get(sev, "#f59e0b")
+                st.markdown(f"""<div class="risk-card" style="border-left:4px solid {sc};">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:0.3rem;"><span style="font-weight:600; color:#2d1b69;">{risk['category']}</span><span style="background:{sc}; color:white; padding:2px 12px; border-radius:20px; font-size:0.8rem; font-weight:600;">{sev}</span></div>
+                    <div style="color:#6b7db3;">{risk['description']}</div></div>""", unsafe_allow_html=True)
             if not assessment.get('risks'): st.success("未发现明显风险")
 
         with tab4:
