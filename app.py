@@ -479,7 +479,7 @@ elif st.session_state.step == 4:
 
     with tab4:
         st.markdown("#### 面试题目清单")
-        st.caption(f"共 {len(questions)} 道题目，针对候选人简历和岗位要求定制")
+        st.caption(f"共 {len(questions)} 道题目 | 三层面试法：项目深挖 → 现场设计 → 反作弊验证")
 
         categories = {}
         for q in questions:
@@ -487,25 +487,46 @@ elif st.session_state.step == 4:
             categories.setdefault(cat, []).append(q)
 
         cat_icons = {
+            "项目深挖-架构追问": "🏗️", "项目深挖-方案选型": "⚖️",
+            "项目深挖-数据与指标": "📊",
             "项目经历深挖": "🔍", "经历真实性验证": "🔍",
+            "现场轻设计题": "📐",
             "岗位技能实操": "🔧", "核心能力考察": "🔧",
             "技能盲区论证": "💡",
+            "反作弊-��节压强": "🎯", "反作弊-改方案测试": "🔄",
+            "反直觉问题": "🧠",
             "风险点验证": "⚠️", "风险点深挖": "⚠️",
             "压力/情景测试": "⚡", "岗位匹配验证": "🎯",
         }
 
-        for cat, qs in categories.items():
+        # 按面试层级排序
+        layer_order = [
+            "项目深挖-架构追问", "项目深挖-方案选型", "项目深挖-数据与指标",
+            "项目经历深挖", "经历真实性验证",
+            "现场轻设计题", "岗位技能实操", "核心能力考察",
+            "技能盲区论证",
+            "反作弊-细节压强", "反作弊-改方案测试", "反直觉问题",
+            "风险点验证", "风险点深挖",
+            "压力/情景测试", "岗位匹配验证",
+        ]
+        sorted_cats = sorted(categories.keys(), key=lambda c: layer_order.index(c) if c in layer_order else 99)
+
+        for cat in sorted_cats:
+            qs = categories[cat]
             icon = cat_icons.get(cat, "📋")
             st.markdown(f"##### {icon} {cat}（{len(qs)}题）")
             for i, q in enumerate(qs, 1):
                 follow_up = q.get("follow_up", "")
-                follow_html = f'<div class="q-followup">↪️ 追问: {follow_up}</div>' if follow_up else ""
+                red_flag = q.get("red_flag", "")
+                follow_html = f'<div class="q-followup">↪️ <strong>追问:</strong> {follow_up}</div>' if follow_up else ""
+                red_flag_html = f'<div style="color:#d32f2f; font-size:0.8rem; margin-top:0.3rem; background:#fff5f5; padding:4px 8px; border-radius:4px;">🚩 <strong>红旗信号:</strong> {red_flag}</div>' if red_flag else ""
                 st.markdown(f"""
                 <div class="question-card">
                     <div class="q-category">{cat}</div>
                     <div class="q-text">{i}. {q['question']}</div>
                     <div class="q-purpose">🎯 考察点: {q['purpose']}</div>
                     {follow_html}
+                    {red_flag_html}
                 </div>
                 """, unsafe_allow_html=True)
             st.markdown("")
