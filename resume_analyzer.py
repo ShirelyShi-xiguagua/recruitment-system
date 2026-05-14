@@ -29,6 +29,11 @@ def _parse_json_response(text: str) -> dict:
 def extract_resume_profile(resume_text: str) -> Dict[str, Any]:
     prompt = f"""请从以下简历中提取详细的人才画像。
 
+重要提示：
+- total_experience_years 必须只计算工作经历的总年限，不要把教育年份算进去
+- 如果简历明确写了"X年经验"，直接使用该数字
+- 如果没有明确写，根据工作经历的起止时间计算
+
 简历内容：
 {resume_text}
 
@@ -138,9 +143,20 @@ def _extract_phone(text: str) -> str:
 
 
 def _calculate_total_experience(text: str) -> int:
-    years = re.findall(r'(\d{4})', text)
-    if len(years) >= 2:
-        nums = [int(y) for y in years if 1980 <= int(y) <= 2030]
+    explicit = re.search(r'(\d{1,2})\s*[年年]\s*(?:以上\s*)?(?:工作|从业|开发|项目|相关|管理)?(?:经验|经历)', text)
+    if explicit:
+        return int(explicit.group(1))
+    explicit2 = re.search(r'(?:工作|从业|开发|项目|相关|管理)\s*(?:经验|经历)\s*[：:]\s*(\d{1,2})\s*年', text)
+    if explicit2:
+        return int(explicit2.group(1))
+    work_section = ""
+    m = re.search(r'(?:工作经[验历]|Work\s*Experience|职业经历)', text, re.IGNORECASE)
+    if m:
+        edu = re.search(r'(?:教育背景|Education|学历|项目经[验历]|技能)', text[m.end():], re.IGNORECASE)
+        work_section = text[m.end():m.end() + edu.start()] if edu else text[m.end():]
+    if work_section:
+        work_years = re.findall(r'(20\d{2}|19\d{2})', work_section)
+        nums = [int(y) for y in work_years if 1990 <= int(y) <= 2026]
         if nums:
             return max(nums) - min(nums)
     return 0
